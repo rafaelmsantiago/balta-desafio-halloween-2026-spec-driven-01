@@ -25,14 +25,16 @@ public static class PasswordsEndpoints
     }
 
     // O id chega como string para que um valor inválido vire 400, e não 404 do roteamento (D12).
-    private static async Task<Results<Ok<PasswordResponse>, NotFound>> GetByIdAsync(
+    private static async Task<Results<Ok<PasswordResponse>, ValidationProblem, NotFound>> GetByIdAsync(
         string id,
         IPasswordService service,
         CancellationToken cancellationToken)
     {
         if (!Guid.TryParse(id, out var guid))
         {
-            return TypedResults.NotFound();
+            return TypedResults.ValidationProblem(
+                new Dictionary<string, string[]> { ["id"] = ["Identificador inválido."] },
+                title: "Erro de validação.");
         }
 
         var password = await service.GetByIdAsync(guid, cancellationToken);
