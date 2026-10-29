@@ -5,12 +5,27 @@ namespace PasswordApi.Endpoints;
 
 public static class PasswordsEndpoints
 {
+    private const string LearningWarning =
+        "Aviso: projeto de aprendizado; as senhas ficam em texto puro e não há autenticação. Não use em produção.";
+
     public static IEndpointRouteBuilder MapPasswordsEndpoints(this IEndpointRouteBuilder app)
     {
         var group = app.MapGroup("/senhas");
 
-        group.MapPost("/", CreateAsync);
-        group.MapGet("/{id}", GetByIdAsync);
+        group.MapPost("/", CreateAsync)
+            .WithSummary("Gera e armazena uma senha forte.")
+            .WithDescription(
+                "Gera uma senha de 16 caracteres com maiúscula, minúscula, dígito e caractere especial, " +
+                "grava no banco e retorna o GUID para consulta. " + LearningWarning)
+            .ProducesProblem(StatusCodes.Status500InternalServerError);
+
+        group.MapGet("/{id}", GetByIdAsync)
+            .WithSummary("Consulta uma senha pelo GUID.")
+            .WithDescription(
+                "Retorna a senha associada ao GUID. Responde 400 se o id não for um GUID válido " +
+                "e 404 se o GUID não existir. " + LearningWarning)
+            .ProducesProblem(StatusCodes.Status404NotFound)
+            .ProducesProblem(StatusCodes.Status500InternalServerError);
 
         return app;
     }
