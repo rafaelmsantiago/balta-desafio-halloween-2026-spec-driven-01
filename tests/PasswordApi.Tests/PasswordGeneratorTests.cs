@@ -24,4 +24,15 @@ public class PasswordGeneratorTests
             Assert.DoesNotContain(password, char.IsWhiteSpace);
         }
     }
+
+    [Fact]
+    public void Generate_NeverRepeatsPasswords()
+    {
+        var passwords = new HashSet<string>();
+
+        for (var i = 0; i < Iterations; i++)
+        {
+            Assert.True(passwords.Add(_generator.Generate()), "Senha duplicada gerada.");
+        }
+    }
 }
