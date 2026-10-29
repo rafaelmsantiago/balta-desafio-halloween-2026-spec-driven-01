@@ -1,6 +1,7 @@
 using System.Net;
 using System.Net.Http.Json;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using PasswordApi.Data;
@@ -92,6 +93,21 @@ public class PasswordsEndpointsTests
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         var body = await response.Content.ReadFromJsonAsync<PasswordBody>();
         Assert.Equal(created, body);
+    }
+
+    [Fact]
+    public async Task CA06_GetWithUnknownGuid_Returns404ProblemDetails()
+    {
+        using var factory = new TestApiFactory();
+        using var client = factory.CreateClient();
+
+        var response = await client.GetAsync($"/senhas/{Guid.NewGuid()}");
+
+        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+        Assert.Equal("application/problem+json", response.Content.Headers.ContentType?.MediaType);
+        var problem = await response.Content.ReadFromJsonAsync<ProblemDetails>();
+        Assert.NotNull(problem);
+        Assert.Equal("Senha não encontrada.", problem.Title);
     }
 
     [Fact]
