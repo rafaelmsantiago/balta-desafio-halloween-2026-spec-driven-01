@@ -21,6 +21,6 @@ public class PasswordService(AppDbContext db, IPasswordGenerator generator) : IP
         return password;
     }
 
-    public Task<Password?> GetByIdAsync(Guid id, CancellationToken cancellationToken) =>
-        throw new NotImplementedException();
+    public async Task<Password?> GetByIdAsync(Guid id, CancellationToken cancellationToken) =>
+        await db.Passwords.FindAsync([id], cancellationToken);
 }
