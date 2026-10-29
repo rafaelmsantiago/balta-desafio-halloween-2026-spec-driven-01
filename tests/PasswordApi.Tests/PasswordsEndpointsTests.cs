@@ -66,6 +66,27 @@ public class PasswordsEndpointsTests
         Assert.DoesNotContain(senha, char.IsWhiteSpace);
     }
 
+    [Fact]
+    public async Task CA08_TwoPosts_ReturnDifferentIdsAndPasswords()
+    {
+        using var factory = new TestApiFactory();
+        using var client = factory.CreateClient();
+
+        var first = await PostAsync(client);
+        var second = await PostAsync(client);
+
+        Assert.NotEqual(first.Id, second.Id);
+        Assert.NotEqual(first.Senha, second.Senha);
+    }
+
+    private static async Task<PasswordBody> PostAsync(HttpClient client)
+    {
+        var response = await client.PostAsync("/senhas", content: null);
+
+        response.EnsureSuccessStatusCode();
+        return (await response.Content.ReadFromJsonAsync<PasswordBody>())!;
+    }
+
     private static async Task<string> PostAndGetPasswordAsync()
     {
         using var factory = new TestApiFactory();
