@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using PasswordApi.Data;
 using PasswordApi.Endpoints;
 using PasswordApi.Services;
+using Scalar.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -32,6 +33,7 @@ using (var scope = app.Services.CreateScope())
 app.UseExceptionHandler();
 
 app.MapOpenApi();
+app.MapScalarApiReference();
 app.MapPasswordsEndpoints();
 
 app.Run();

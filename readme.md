@@ -26,7 +26,7 @@ As especificações estão em [`specs/`](specs/):
 - Senhas com 16 caracteres, com ao menos uma maiúscula, uma minúscula, um dígito e um caractere especial (`!@#$%^&*()-_=+[]{}`), sem espaços, geradas com `RandomNumberGenerator`.
 - Persistência em SQLite via EF Core, com migration aplicada automaticamente ao subir a API.
 - Erros no formato ProblemDetails (`application/problem+json`) com mensagens em português.
-- Documento OpenAPI em `/openapi/v1.json`.
+- Documento OpenAPI em `/openapi/v1.json` e interface Scalar em `/scalar` para testar no browser.
 - Testes com xUnit: unitários do gerador e do serviço, e de integração para cada critério de aceite (`CA01` a `CA09`).
 
 Neste processo eu aprendi:
@@ -75,7 +75,11 @@ curl -i http://localhost:5187/senhas/abc                                   # 400
 curl -i http://localhost:5187/senhas/00000000-0000-0000-0000-000000000001  # 404: Senha não encontrada.
 ```
 
-O documento OpenAPI fica em `http://localhost:5187/openapi/v1.json`.
+### Testando no browser
+
+Com a API rodando, abra **`http://localhost:5187/scalar`**. A interface [Scalar](https://github.com/scalar/scalar) lista os dois endpoints e permite chamar o `POST` e o `GET` direto do browser (botão **Test Request**).
+
+O documento OpenAPI bruto fica em `http://localhost:5187/openapi/v1.json`.
 
 ## Como rodar os testes
 
