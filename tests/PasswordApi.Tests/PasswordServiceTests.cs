@@ -73,6 +73,34 @@ public class PasswordServiceTests : IDisposable
         Assert.Equal(0, await readDb.Passwords.CountAsync());
     }
 
+    [Fact]
+    public async Task GetByIdAsync_WithExistingId_ReturnsStoredPassword()
+    {
+        Password created;
+        using (var db = CreateContext())
+        {
+            created = await new PasswordService(db, new FixedPasswordGenerator()).CreateAsync(CancellationToken.None);
+        }
+
+        using var readDb = CreateContext();
+        var found = await new PasswordService(readDb, new FixedPasswordGenerator()).GetByIdAsync(created.Id, CancellationToken.None);
+
+        Assert.NotNull(found);
+        Assert.Equal(created.Id, found.Id);
+        Assert.Equal(created.Value, found.Value);
+    }
+
+    [Fact]
+    public async Task GetByIdAsync_WithUnknownId_ReturnsNull()
+    {
+        using var db = CreateContext();
+        var service = new PasswordService(db, new FixedPasswordGenerator());
+
+        var found = await service.GetByIdAsync(Guid.NewGuid(), CancellationToken.None);
+
+        Assert.Null(found);
+    }
+
     private DbContextOptions<AppDbContext> CreateOptions() =>
         new DbContextOptionsBuilder<AppDbContext>().UseSqlite(_connection).Options;
 
