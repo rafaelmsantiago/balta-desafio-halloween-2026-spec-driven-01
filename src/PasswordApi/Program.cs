@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using PasswordApi.Data;
+using PasswordApi.Endpoints;
 using PasswordApi.Services;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -31,5 +32,6 @@ using (var scope = app.Services.CreateScope())
 app.UseExceptionHandler();
 
 app.MapOpenApi();
+app.MapPasswordsEndpoints();
 
 app.Run();
