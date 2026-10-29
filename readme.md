@@ -29,10 +29,20 @@ As especificações estão em [`specs/`](specs/):
 - Documento OpenAPI em `/openapi/v1.json` e interface Scalar em `/scalar` para testar no browser.
 - Testes com xUnit: unitários do gerador e do serviço, e de integração para cada critério de aceite (`CA01` a `CA09`).
 
-Neste processo eu aprendi:
-* ✅
+#### Neste processo eu aprendi
 
-## Bagde
+* ✅ Que no SDD cada documento tem um papel claro: a **constituição** define as regras que não mudam, a **spec** diz o quê e por quê, o **plano** diz como e as **tarefas** quebram o trabalho em passos pequenos.
+* ✅ A escrever a spec sem falar de tecnologia, focando em problema, requisitos, regras de negócio, casos de borda, fora de escopo e critérios de aceite.
+* ✅ Que deixar explícito o que está **fora de escopo** (autenticação, criptografia, rate limiting) evita que a IA invente funcionalidades e mantém a solução simples.
+* ✅ A justificar cada decisão técnica no plano, inclusive cada pacote adicionado, em vez de deixar escolhas implícitas.
+* ✅ A usar a constituição como governança: quando o plano contradisse a constituição (endpoint acessando o banco direto, erros fora do ProblemDetails), quem mudou foi o plano.
+* ✅ A dar identificadores (`RF`, `RN`, `CA`, `D`, `T`) para tudo e manter a rastreabilidade de ponta a ponta: requisito → decisão → tarefa → teste → commit.
+* ✅ Que tarefas pequenas, com dependências e um critério de "concluída quando", tornam o trabalho da IA previsível e fácil de revisar, com um commit por tarefa.
+* ✅ Que critérios de aceite bem escritos viram testes de integração quase diretamente (`CA01` a `CA09`).
+* ✅ Que uma nova necessidade (testar no browser com o Scalar) entra pelo mesmo fluxo: primeiro atualiza o plano e as tarefas, depois implementa.
+* ✅ Detalhes técnicos de .NET: gerar senhas com `RandomNumberGenerator` e embaralhar com Fisher-Yates, ProblemDetails em Minimal API, migrations do EF Core com SQLite e testes de integração com `WebApplicationFactory` e SQLite em memória.
+
+## Badge
 <img src="https://baltaio.blob.core.windows.net/static/images/v4/challenges/halloween-2026/01.png" width="200" />
 
 ## Problema
@@ -92,7 +102,7 @@ Os testes usam SQLite em memória (e um arquivo temporário no teste de persist�
 Para criar novas migrations, restaure a ferramenta local `dotnet-ef` com `dotnet tool restore`.
 
 ## Sobre o Halloween 2026
-O desafio **Halloween 2026** consiste em implementar implementar o modelo Spec Driven Development de ponta a ponta, criando apps completas com IA.
+O desafio **Halloween 2026** consiste em implementar o modelo Spec Driven Development de ponta a ponta, criando apps completas com IA.
 
 ### Veja meu progresso no desafio
 https://github.com/balta-io/balta-desafio-halloween-2026-spec-driven-01
