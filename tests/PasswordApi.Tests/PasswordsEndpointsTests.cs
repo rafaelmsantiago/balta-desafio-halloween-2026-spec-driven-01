@@ -125,6 +125,20 @@ public class PasswordsEndpointsTests
         Assert.Equal(["Identificador inválido."], problem.Errors["id"]);
     }
 
+    [Fact]
+    public async Task EdgeCase_GetWithUpperOrLowerCaseGuid_ReturnsSamePassword()
+    {
+        using var factory = new TestApiFactory();
+        using var client = factory.CreateClient();
+        var created = await PostAsync(client);
+
+        var upper = await client.GetFromJsonAsync<PasswordBody>($"/senhas/{created.Id.ToUpperInvariant()}");
+        var lower = await client.GetFromJsonAsync<PasswordBody>($"/senhas/{created.Id.ToLowerInvariant()}");
+
+        Assert.Equal(created.Senha, upper?.Senha);
+        Assert.Equal(created.Senha, lower?.Senha);
+    }
+
     private static async Task<PasswordBody> PostAsync(HttpClient client)
     {
         var response = await client.PostAsync("/senhas", content: null);
