@@ -3,6 +3,7 @@ using System.Net.Http.Json;
 using System.Text.Json;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using PasswordApi.Data;
@@ -125,6 +126,41 @@ public class PasswordsEndpointsTests
         var problem = await response.Content.ReadFromJsonAsync<HttpValidationProblemDetails>();
         Assert.NotNull(problem);
         Assert.Equal(["Identificador inválido."], problem.Errors["id"]);
+    }
+
+    [Fact]
+    public async Task CA09_PasswordSurvivesApplicationRestart()
+    {
+        var file = Path.Combine(Path.GetTempPath(), $"senhas-{Guid.NewGuid():N}.db");
+        var connectionString = $"Data Source={file}";
+
+        try
+        {
+            PasswordBody created;
+            using (var factory = new TestApiFactory(connectionString))
+            using (var client = factory.CreateClient())
+            {
+                created = await PostAsync(client);
+            }
+
+            using (var factory = new TestApiFactory(connectionString))
+            using (var client = factory.CreateClient())
+            {
+                var found = await client.GetFromJsonAsync<PasswordBody>($"/senhas/{created.Id}");
+                Assert.Equal(created, found);
+            }
+        }
+        finally
+        {
+            // O pool do SQLite mantém o arquivo aberto; é preciso liberá-lo antes de apagar.
+            SqliteConnection.ClearAllPools();
+            foreach (var path in new[] { file, $"{file}-wal", $"{file}-shm" })
+            {
+                File.Delete(path);
+            }
+        }
+
+        Assert.False(File.Exists(file));
     }
 
     [Fact]
