@@ -95,4 +95,4 @@ Para criar novas migrations, restaure a ferramenta local `dotnet-ef` com `dotnet
 O desafio **Halloween 2026** consiste em implementar implementar o modelo Spec Driven Development de ponta a ponta, criando apps completas com IA.
 
 ### Veja meu progresso no desafio
-[Incluir link para o repositório central]
+https://github.com/balta-io/balta-desafio-halloween-2026-spec-driven-01
