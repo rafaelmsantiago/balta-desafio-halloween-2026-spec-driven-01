@@ -25,7 +25,7 @@ public static class PasswordsEndpoints
     }
 
     // O id chega como string para que um valor inválido vire 400, e não 404 do roteamento (D12).
-    private static async Task<Results<Ok<PasswordResponse>, ValidationProblem, NotFound>> GetByIdAsync(
+    private static async Task<Results<Ok<PasswordResponse>, ValidationProblem, ProblemHttpResult>> GetByIdAsync(
         string id,
         IPasswordService service,
         CancellationToken cancellationToken)
@@ -40,7 +40,7 @@ public static class PasswordsEndpoints
         var password = await service.GetByIdAsync(guid, cancellationToken);
         if (password is null)
         {
-            return TypedResults.NotFound();
+            return TypedResults.Problem(title: "Senha não encontrada.", statusCode: StatusCodes.Status404NotFound);
         }
 
         return TypedResults.Ok(new PasswordResponse(password.Id, password.Value));
