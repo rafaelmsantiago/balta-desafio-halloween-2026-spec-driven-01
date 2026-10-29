@@ -10,6 +10,7 @@ public static class PasswordsEndpoints
         var group = app.MapGroup("/senhas");
 
         group.MapPost("/", CreateAsync);
+        group.MapGet("/{id}", GetByIdAsync);
 
         return app;
     }
@@ -21,6 +22,26 @@ public static class PasswordsEndpoints
         var password = await service.CreateAsync(cancellationToken);
 
         return TypedResults.Created($"/senhas/{password.Id}", new PasswordResponse(password.Id, password.Value));
+    }
+
+    // O id chega como string para que um valor inválido vire 400, e não 404 do roteamento (D12).
+    private static async Task<Results<Ok<PasswordResponse>, NotFound>> GetByIdAsync(
+        string id,
+        IPasswordService service,
+        CancellationToken cancellationToken)
+    {
+        if (!Guid.TryParse(id, out var guid))
+        {
+            return TypedResults.NotFound();
+        }
+
+        var password = await service.GetByIdAsync(guid, cancellationToken);
+        if (password is null)
+        {
+            return TypedResults.NotFound();
+        }
+
+        return TypedResults.Ok(new PasswordResponse(password.Id, password.Value));
     }
 
     // Contrato público do spec: os campos JSON são "id" e "senha".
