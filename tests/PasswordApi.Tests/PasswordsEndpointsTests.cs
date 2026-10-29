@@ -1,10 +1,12 @@
 using System.Net;
 using System.Net.Http.Json;
+using System.Text.Json;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using PasswordApi.Data;
+using PasswordApi.Services;
 
 namespace PasswordApi.Tests;
 
@@ -137,6 +139,38 @@ public class PasswordsEndpointsTests
 
         Assert.Equal(created.Senha, upper?.Senha);
         Assert.Equal(created.Senha, lower?.Senha);
+    }
+
+    [Fact]
+    public async Task EdgeCase_PostWhenServiceFails_Returns500WithoutLeakingData()
+    {
+        using var factory = new TestApiFactory(services =>
+            services.AddScoped<IPasswordService, ThrowingPasswordService>());
+        using var client = factory.CreateClient();
+
+        var response = await client.PostAsync("/senhas", content: null);
+
+        Assert.Equal(HttpStatusCode.InternalServerError, response.StatusCode);
+        Assert.Equal("application/problem+json", response.Content.Headers.ContentType?.MediaType);
+        var json = await response.Content.ReadAsStringAsync();
+        using var document = JsonDocument.Parse(json);
+        var root = document.RootElement;
+        Assert.Equal("Erro interno.", root.GetProperty("title").GetString());
+        Assert.False(root.TryGetProperty("id", out _));
+        Assert.False(root.TryGetProperty("senha", out _));
+        Assert.DoesNotContain(ThrowingPasswordService.Message, json);
+        Assert.DoesNotContain(nameof(ThrowingPasswordService), json);
+    }
+
+    private sealed class ThrowingPasswordService : IPasswordService
+    {
+        public const string Message = "Falha simulada no serviço.";
+
+        public Task<Password> CreateAsync(CancellationToken cancellationToken) =>
+            throw new InvalidOperationException(Message);
+
+        public Task<Password?> GetByIdAsync(Guid id, CancellationToken cancellationToken) =>
+            throw new InvalidOperationException(Message);
     }
 
     private static async Task<PasswordBody> PostAsync(HttpClient client)
