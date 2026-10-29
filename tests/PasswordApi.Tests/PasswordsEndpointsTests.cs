@@ -79,6 +79,20 @@ public class PasswordsEndpointsTests
         Assert.NotEqual(first.Senha, second.Senha);
     }
 
+    [Fact]
+    public async Task CA05_GetAfterPost_Returns200WithSamePassword()
+    {
+        using var factory = new TestApiFactory();
+        using var client = factory.CreateClient();
+        var created = await PostAsync(client);
+
+        var response = await client.GetAsync($"/senhas/{created.Id}");
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        var body = await response.Content.ReadFromJsonAsync<PasswordBody>();
+        Assert.Equal(created, body);
+    }
+
     private static async Task<PasswordBody> PostAsync(HttpClient client)
     {
         var response = await client.PostAsync("/senhas", content: null);
