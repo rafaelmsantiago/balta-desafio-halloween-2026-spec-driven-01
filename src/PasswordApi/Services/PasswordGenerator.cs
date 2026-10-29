@@ -8,16 +8,22 @@ public class PasswordGenerator : IPasswordGenerator
     private const string Lowercase = "abcdefghijklmnopqrstuvwxyz";
     private const string Digits = "0123456789";
     private const string Specials = "!@#$%^&*()-_=+[]{}";
+    private const string All = Uppercase + Lowercase + Digits + Specials;
+
+    public const int Length = 16;
 
     public string Generate()
     {
-        char[] chars =
-        [
-            Pick(Uppercase),
-            Pick(Lowercase),
-            Pick(Digits),
-            Pick(Specials),
-        ];
+        var chars = new char[Length];
+        chars[0] = Pick(Uppercase);
+        chars[1] = Pick(Lowercase);
+        chars[2] = Pick(Digits);
+        chars[3] = Pick(Specials);
+
+        for (var i = 4; i < Length; i++)
+        {
+            chars[i] = Pick(All);
+        }
 
         return new string(chars);
     }
