@@ -25,8 +25,20 @@ public class PasswordGenerator : IPasswordGenerator
             chars[i] = Pick(All);
         }
 
+        Shuffle(chars);
+
         return new string(chars);
     }
 
     private static char Pick(string set) => set[RandomNumberGenerator.GetInt32(set.Length)];
+
+    // Fisher-Yates: evita que os 4 primeiros caracteres sigam sempre a mesma ordem de categorias.
+    private static void Shuffle(char[] chars)
+    {
+        for (var i = chars.Length - 1; i > 0; i--)
+        {
+            var j = RandomNumberGenerator.GetInt32(i + 1);
+            (chars[i], chars[j]) = (chars[j], chars[i]);
+        }
+    }
 }
