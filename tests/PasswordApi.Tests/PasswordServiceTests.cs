@@ -59,11 +59,33 @@ public class PasswordServiceTests : IDisposable
         Assert.Equal(created.CreatedAtUtc, stored.CreatedAtUtc);
     }
 
-    private AppDbContext CreateContext() =>
-        new(new DbContextOptionsBuilder<AppDbContext>().UseSqlite(_connection).Options);
+    [Fact]
+    public async Task CreateAsync_WhenSaveFails_PropagatesExceptionAndStoresNothing()
+    {
+        using (var db = new FailingAppDbContext(CreateOptions()))
+        {
+            var service = new PasswordService(db, new FixedPasswordGenerator());
+
+            await Assert.ThrowsAsync<DbUpdateException>(() => service.CreateAsync(CancellationToken.None));
+        }
+
+        using var readDb = CreateContext();
+        Assert.Equal(0, await readDb.Passwords.CountAsync());
+    }
+
+    private DbContextOptions<AppDbContext> CreateOptions() =>
+        new DbContextOptionsBuilder<AppDbContext>().UseSqlite(_connection).Options;
+
+    private AppDbContext CreateContext() => new(CreateOptions());
 
     private sealed class FixedPasswordGenerator : IPasswordGenerator
     {
         public string Generate() => FixedPassword;
+    }
+
+    private sealed class FailingAppDbContext(DbContextOptions<AppDbContext> options) : AppDbContext(options)
+    {
+        public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default) =>
+            throw new DbUpdateException("Falha simulada ao gravar.");
     }
 }
