@@ -1,5 +1,6 @@
 using System.Net;
 using System.Net.Http.Json;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using PasswordApi.Data;
@@ -91,6 +92,21 @@ public class PasswordsEndpointsTests
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         var body = await response.Content.ReadFromJsonAsync<PasswordBody>();
         Assert.Equal(created, body);
+    }
+
+    [Fact]
+    public async Task CA07_GetWithInvalidGuid_Returns400ProblemDetails()
+    {
+        using var factory = new TestApiFactory();
+        using var client = factory.CreateClient();
+
+        var response = await client.GetAsync("/senhas/abc");
+
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        Assert.Equal("application/problem+json", response.Content.Headers.ContentType?.MediaType);
+        var problem = await response.Content.ReadFromJsonAsync<HttpValidationProblemDetails>();
+        Assert.NotNull(problem);
+        Assert.Equal(["Identificador inválido."], problem.Errors["id"]);
     }
 
     private static async Task<PasswordBody> PostAsync(HttpClient client)
