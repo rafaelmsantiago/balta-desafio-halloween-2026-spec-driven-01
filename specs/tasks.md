@@ -92,6 +92,12 @@ Como usar:
 | T-37 | Conferir a conformidade com a constituição: (a) nenhum arquivo em `Endpoints/` referencia `AppDbContext` ou `IPasswordGenerator`; (b) `dotnet list package` mostra só o que está em D21; (c) todo erro 400 retorna `application/problem+json`; (d) nomes de classe e arquivo em inglês; (e) histórico de commits segue o formato definido | Constituição (todas as seções), R10 | T-12, T-18, T-31, T-33, T-36 | Os cinco itens verificados e sem pendências |
 | T-38 | Rodar a suíte completa e conferir a matriz de cobertura abaixo: todo critério de aceite tem teste correspondente | CA01 a CA10 | T-24, T-26, T-28, T-30, T-32, T-33, T-34, T-37 | `dotnet test` passa 100% e a matriz abaixo está toda preenchida |
 
+## Fase 10: Experiência no browser
+
+| ID | Tarefa | Origem | Depende de | Concluída quando |
+|---|---|---|---|---|
+| T-39 | Adicionar o pacote `Scalar.AspNetCore`, mapear a interface Scalar em `/scalar` e citar o endereço no README | D21, D23 | T-35, T-36 | `dotnet run` sobe, `/scalar` abre no browser listando os dois endpoints e `dotnet list package` só mostra pacotes da D21 |
+
 ## Matriz de cobertura: critérios de aceite → tarefas
 
 | Critério | Verificado por |

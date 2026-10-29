@@ -99,6 +99,7 @@ tests/PasswordApi.Tests/
 | D20 | **Nomes em inglês no código, arquivos, tabela e colunas** (`Password`, `PasswordService`, tabela `Passwords`, colunas `Id`, `Value`, `CreatedAtUtc`); **mensagens de erro em português**. O contrato público (rota `/senhas` e campo JSON `senha`) permanece em português como definido no spec | Convenção da constituição. A rota e o campo JSON são contrato com o consumidor, definido no spec, e não código interno; mudá-los exigiria alterar o spec. A conversão entre `Value` e `senha` acontece no endpoint, num DTO de resposta. |
 | D21 | **Dependências permitidas**, detalhadas na tabela abaixo | A constituição proíbe dependência nova sem justificativa escrita no plano. Qualquer pacote fora da lista exige atualizar este plano antes. |
 | D22 | **Um commit por tarefa**, no formato `tipo(escopo): descrição [ID do requisito]` (ex.: `feat(generator): sorteia um caractere por categoria [RN02]`) | Convenção da constituição. Um commit por tarefa mantém o histórico rastreável até o requisito e facilita reverter uma tarefa isolada. Mudanças na constituição vão em commit separado. |
+| D23 | **Interface Scalar** em `/scalar`, lendo o documento de `/openapi/v1.json` | O documento OpenAPI sozinho é só um JSON, e o browser não consegue chamar o `POST`. A interface permite testar os dois endpoints no browser, sem curl nem ferramentas externas, o que ajuda quem está aprendendo (mesma motivação da D16). |
 
 ### D21 – Dependências e justificativas
 
@@ -108,6 +109,7 @@ tests/PasswordApi.Tests/
 | `Microsoft.EntityFrameworkCore.Design` (com `PrivateAssets="all"`) | API | Necessário apenas para criar migrations (`dotnet ef migrations add`). Não vai para a saída de build. |
 | `dotnet-ef` (ferramenta local, via manifesto de tools) | Repositório | Comando que cria as migrations. Local ao repositório para não depender da máquina de quem clona. |
 | `Microsoft.AspNetCore.OpenApi` | API | Documento OpenAPI nativo (D16). Pacote oficial da Microsoft; evita adicionar bibliotecas de terceiros como Swashbuckle. |
+| `Scalar.AspNetCore` | API | Interface no browser para experimentar os endpoints (D23). Só lê o documento OpenAPI já gerado pelo pacote acima, sem gerar outro; mais leve e atual que o Swashbuckle. |
 | `xunit`, `xunit.runner.visualstudio`, `Microsoft.NET.Test.Sdk` | Testes | Framework de testes definido na constituição e pacotes mínimos para o `dotnet test` descobrir e rodar os testes. |
 | `Microsoft.AspNetCore.Mvc.Testing` | Testes | Fornece o `WebApplicationFactory` para testes de integração (D17). Alternativa seria subir o servidor manualmente, o que é mais trabalhoso e frágil. |
 
